@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>播磨 賢のポートフォリオ（Ken HARIMA's Portfolio）</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        /*
+         * NEO-BRUTALIST & ANIMATION STYLES
+         */
+
+        /* Set base fonts */
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            /* A retro-ish, high-contrast background */
+            background-color: #FDF2E9; /* Pale Orange */
+            color: #111827; /* Tailwind gray-900 */
+        }
+
+        /* Hard Shadow - A key neo-brutalist effect */
+        .hard-shadow {
+            box-shadow: 4px 4px 0px #111827;
+        }
+        
+        .hard-shadow-lg {
+            box-shadow: 8px 8px 0px #111827;
+        }
+
+        /* Button "Press" Effect */
+        .btn-press {
+            transition: all 0.1s ease-in-out;
+        }
+        .btn-press:active {
+            transform: translate(4px, 4px);
+            box-shadow: none !important; /* !important to override hover */
+        }
+        
+        /* Hover effects for cards */
+        .card-hover:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 8px 8px 0px #111827;
+        }
+        .card-hover {
+            transition: all 0.2s ease-out;
+        }
+
+        /*
+         * SCROLL-IN ANIMATIONS
+         * Uses Intersection Observer
+         */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            will-change: opacity, transform;
+        }
+
+        .scroll-animate.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom high-contrast colors for Tailwind */
+        /* You can't add them via CDN, so I'll use arbitrary values */
+        /* bg-[#FF6B6B], bg-[#4ECDC4], bg-[#45B7D1], bg-[#FED766] */
+
+        /* Language Toggle Switch Style */
+        .lang-toggle {
+            width: 64px; /* 32px*2 */
+            height: 32px;
+            background-color: white;
+            border: 3px solid #111827;
+            border-radius: 99px;
+            padding: 2px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .lang-toggle-handle {
+            width: 22px;
+            height: 22px;
+            background-color: #111827;
+            border-radius: 99px;
+            transition: transform 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            color: white;
+            line-height: 1;
+        }
+        .lang-toggle.en .lang-toggle-handle {
+            transform: translateX(32px); /* (64px - 4px*2 (padding) - 22px) = 34px...
+            Let's adjust to 32px */
+        }
+        
+        /* Class for text transition */
+        .lang-fade {
+            transition: opacity 0.2s ease-out;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- 
+      HEADER / NAVIGATION 
+      - Sticky nav with neo-brutalist styling
+      - Mobile-responsive menu
+    -->
+    <header class="sticky top-0 z-50 bg-[#FDF2E9]/80 backdrop-blur-md border-b-4 border-black">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo / Title -->
+            <div class="text-xl md:text-2xl font-black text-black">
+                <a href="#" data-key="navLogo" class="lang-fade">播磨 賢</a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-black focus:outline-none">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Desktop Navigation Links -->
+            <div class="hidden md:flex items-center space-x-4 lg:space-x-6">
+                <a href="#about" class="text-lg font-bold text-gray-700 hover:text-black transition-colors lang-fade" data-key="navAbout">私について</a>
+                <a href="#works" class="text-lg font-bold text-gray-700 hover:text-black transition-colors lang-fade" data-key="navWorks">活動・受賞歴</a>
+                <a href="#skills" class="text-lg font-bold text-gray-700 hover:text-black transition-colors lang-fade" data-key="navSkills">保有資格</a>
+                <a href="#contact" class="text-lg font-bold text-gray-700 hover:text-black transition-colors lang-fade" data-key="navContact">連絡先</a>
+                
+                <!-- Language Toggle -->
+                <button id="lang-toggle-desktop" class="lang-toggle btn-press hard-shadow" aria-label="Toggle language">
+                    <div class="lang-toggle-handle" id="lang-handle-desktop">JP</div>
+                </button>
+
+                <a href="mailto:beyondtheken.jp@gmail.com" 
+                   class="btn-press hard-shadow text-lg font-black text-black bg-[#FED766] border-2 border-black px-6 py-2 rounded-lg hover:bg-[#FFD147] active:bg-[#FDBF1E] lang-fade"
+                   data-key="navButton">
+                   コンタクトを取る
+                </a>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-[#FDF2E9] border-t-4 border-black">
+            <div class="flex flex-col items-center space-y-6 py-8">
+                <a href="#about" class="text-xl font-bold text-gray-700 hover:text-black lang-fade" data-key="navAbout">私について</a>
+                <a href="#works" class="text-xl font-bold text-gray-700 hover:text-black lang-fade" data-key="navWorks">活動・受賞歴</a>
+                <a href="#skills" class="text-xl font-bold text-gray-700 hover:text-black lang-fade" data-key="navSkills">保有資格</a>
+                <a href="#contact" class="text-xl font-bold text-gray-700 hover:text-black lang-fade" data-key="navContact">連絡先</a>
+                <a href="mailto:beyondtheken.jp@gmail.com" 
+                   class="btn-press hard-shadow mt-4 text-xl font-black text-black bg-[#FED766] border-2 border-black px-8 py-3 rounded-lg lang-fade"
+                   data-key="navButton">
+                   コンタクトを取る
+                </a>
+                <!-- Language Toggle Mobile -->
+                <button id="lang-toggle-mobile" class="lang-toggle btn-press hard-shadow mt-4" aria-label="Toggle language">
+                    <div class="lang-toggle-handle" id="lang-handle-mobile">JP</div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="container mx-auto px-6 py-12 md:py-20">
+
+        <!-- 
+          HERO SECTION 
+          - Large, bold text
+          - Asymmetric creative layout
+        -->
+        <section class="min-h-[75vh] flex flex-col justify-center items-center text-center relative mb-24">
+            <!-- Decorative Background Shape -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 md:w-96 md:h-96 bg-[#4ECDC4] rounded-full opacity-30 blur-2xl"></div>
+            
+            <div class="relative z-10">
+                <h1 class="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter scroll-animate">
+                    <span class="block lang-fade" data-key="heroTitle1">播磨 賢</span>
+                    <span class="block mt-2 lang-fade" data-key="heroTitle2">Ken HARIMA</span>
+                </h1>
+                <p class="mt-8 text-xl md:text-3xl font-bold text-gray-800 scroll-animate lang-fade" style="transition-delay: 150ms;" data-key="heroSubtitle">
+                    ダイキン工業株式会社 | 早稲田大学社会科学部
+                </p>
+            </div>
+            
+            <!-- Scrolling Marquee - classic neo-brutalist element -->
+            <div class="absolute bottom-0 w-full overflow-hidden bg-black text-white py-3 border-y-4 border-black -rotate-2 scroll-animate" style="transition-delay: 300ms;">
+               <div class="marquee-content flex space-x-8 animate-marquee whitespace-nowrap">
+                    <span class="text-xl font-bold lang-fade" data-key="marquee1">実存的に飛び込む</span>
+                    <span class="text-xl font-bold text-[#FED766] lang-fade" data-key="marquee2">ESSAY & NARRATIVE</span>
+                    <span class="text-xl font-bold lang-fade" data-key="marquee3">常識を破壊する</span>
+                    <span class="text-xl font-bold text-[#FF6B6B] lang-fade" data-key="marquee4">EXISTENTIALISM</span>
+                    <span class="text-xl font-bold lang-fade" data-key="marquee1_2">実存的に飛び込む</span>
+                    <span class="text-xl font-bold text-[#4ECDC4] lang-fade" data-key="marquee2_2">ESSAY & NARRATIVE</span>
+                    <span class="text-xl font-bold lang-fade" data-key="marquee3_2">常識を破壊する</span>
+                    <span class="text-xl font-bold text-[#FF6B6B] lang-fade" data-key="marquee4_2">EXISTENTIALISM</span>
+                    <span class="text-xl font-bold lang-fade" data-key="marquee1_3">実存的に飛び込む</span>
+                    <span class="text-xl font-bold text-[#FED766] lang-fade" data-key="marquee2_3">ESSAY & NARRATIVE</span>
+                    <span class="text-xl font-bold lang-fade" data-key="marquee3_3">常識を破壊する</span>
+                    <span class="text-xl font-bold text-[#FF6B6B] lang-fade" data-key="marquee4_3">EXISTENTIALISM</span>
+                </div>
+            </div>
+            
+            <!-- Define marquee animation -->
+            <style>
+                .marquee-content {
+                    animation: marquee 20s linear infinite;
+                }
+                @keyframes marquee {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-50%); }
+                }
+                /* Duplicate content for seamless scroll */
+                .marquee-content {
+                    /* Width is dynamically calculated based on content, but 
+                       JS would be needed for perfect seamlessness with dynamic text.
+                       For this CSS-only approach, we duplicate it 3x in HTML
+                       and hope it's wider than the screen.
+                       Let's force it wider to be safe. */
+                    width: 300%; 
+                }
+            </style>
+        </section>
+
+        <!-- 
+          ABOUT ME SECTION
+        -->
+        <section id="about" class="py-24 scroll-animate">
+            <h2 class="text-4xl md:text-6xl font-black text-center mb-12 lang-fade" data-key="aboutTitle">
+                私について
+            </h2>
+            <div class="max-w-4xl mx-auto bg-white border-4 border-black rounded-xl p-8 md:p-12 hard-shadow-lg">
+                <p class="text-lg md:text-xl leading-relaxed mb-6 lang-fade" data-key="aboutBody1">
+                    こんにちは、播磨 賢です。AGI・ASI時代における実存の可能性を本質的に探究します。ドイツ・マンハイム大学で社会学と西洋哲学を専門的に学びました。ポーカープレイヤー、エッセイスト。主な趣味はポーカー、アニメ漫画鑑賞、読書、執筆活動。ゾーンに入ることが得意で、周りの騒音はシャットアウトされ、よく時間も忘れて気づけば太陽が沈んでいることがしばしば。
+                </p>
+                <p class="text-lg md:text-xl leading-relaxed lang-fade" data-key="aboutBody2">
+                    学歴：早稲田大学社会科学部社会科学科卒業、独・マンハイム大学社会科学科社会学科（１年間交換留学）、広尾学園中学・高等学校卒業
+                </p>
+            </div>
+        </section>
+
+        <!-- 
+          WORKS SECTION
+          - UPDATED: Now 8 cards in a staggered grid
+        -->
+        <section id="works" class="py-24">
+            <h2 class="text-4xl md:text-6xl font-black text-center mb-16 scroll-animate lang-fade" data-key="worksTitle">
+                活動・受賞歴
+            </h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="scroll-animate card-hover bg-[#FF6B6B] border-4 border-black rounded-xl p-8 hard-shadow transform transition-all duration-200">
+                    <h3 class="text-2xl font-black mb-3 lang-fade" data-key="work1Title">社会科学部野口ゼミ×(株)理想科学工業マーケティング戦略コンペ</h3>
+                    <p class="text-lg font-bold mb-4 text-black lang-fade" data-key="work1Subtitle">最優秀賞受賞</p>
+                    <p class="text-base text-gray-900 lang-fade" data-key="work1Body">
+                        １年間にかけて行われた早稲田大学社会科学部野口ゼミと㍿理想科学工業のコラボレーションによる当該企業が手がけるプリンター「MiScreen A4」をプロモーション戦略の立案コンペで、SNSでの広報におけるPV数や動画の構成要素を因子分解して数量化１類と呼ばれる専門的な統計学的プロセスを経て抽出されたプロモーション戦略を提案しました。
+                    </p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="scroll-animate card-hover bg-[#4ECDC4] border-4 border-black rounded-xl p-8 hard-shadow transform transition-all duration-200 md:mt-12">
+                    <h3 class="text-2xl font-black mb-3 lang-fade" data-key="work2Title">第36回「働くってなんだろう」エッセイコンテスト</h3>
+                    <p class="text-lg font-bold mb-4 text-black lang-fade" data-key="work2Subtitle">勤労青少年躍進会理事長賞受賞</p>
+                    <p class="text-base text-gray-900 lang-fade" data-key="work2Body">
+                      ペンネーム「風織ケン」の名で執筆した実存的な働き方に光を当てたエッセイ『愛を込めて、清掃員の世界を歩む』が、総応募作品数1,112編の中から、勤労青少年躍進会理事長賞を受賞しました。
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="scroll-animate card-hover bg-white border-4 border-black rounded-xl p-8 hard-shadow transform transition-all duration-200 lg:mt-8">
+                    <h3 class="text-2xl font-black mb-3 lang-fade" data-key="work3Title">第10回あなたが考えるブランドラベルコンテスト</h3>
+                    <p class="text-lg font-bold mb-4 text-black lang-fade" data-key="work3Subtitle">TOP40 東京ビックサイトで作品を展示</p>
+                    <p class="text-base text-gray-900 lang-fade" data-key="work3Body">
+                       2023年、東京吉岡株式会社主催の「あなたのアイデアブランドラベルコンテスト」に参加しました。架空のアパレルブランド"ONESAGE"のコンセプトとデザインを構築。環境に優しい生分解性プラスチック100%使用した作品を完成させました。作品は、延べ520点の応募の中からTOP40に選出され、東京ビックサイトで3日間にわたって展示されました。
+                    </p>
+                </div>
+
+                <!-- Card 4 (NEW) -->
+                <div class="scroll-animate card-hover bg-[#FED766] border-4 border-black rounded-xl p-8 hard-shadow transform transition-all duration-200 md:mt-12 lg:mt-0">
+                    <h3 class="text-2xl font-black mb-3 lang-fade" data-key="work4Title">海外ポーカー実践</h3>
+                    <p class="text-lg font-bold mb-4 text-black lang-fade" data-key="work4Subtitle">投資利益率532%</p>
+                    <p class="text-base text-gray-900 lang-fade" data-key="work4Body">
+                        趣味の1つであるポーカー（ノーリミットテキサスホールデム）では、ゲーム理論研究や数十万ハンドの経験知と勘に裏打ちされた実力で、最終的に留学中に世界10都市で26セッションを行い、5,056ユーロ（約90万8千円）の利益を計上しました。最高のROIは一時927.125%を記録しました。実践は大学の授業に支障をきたさないように配慮しながら行いました。（総プレイ時間：175時間52分、時給：約5200円（€28.75））
+                    </p>
+                </div>
+
+                <!-- Card 5 (NEW) -->
+                <div class="scroll-animate card-hover bg-[#45B7D1] border-4 border-black rounded-xl p-8 hard-shadow transform transition-all duration-200 lg:mt-16">
+                    <h3 class="text-2xl font-black mb-3 text-white lang-fade" data-key="work5Title">「社会デザイン論入門」レポートコンテスト</h3>
+                    <p class="text-lg font-bold mb-4 text-black lang-fade" data-key="work5Subtitle">優秀賞受賞</p>
+                    <p class="text-base text-white lang-fade" data-key="work5Body">
+                        2022年、早稲田大学社会科学部の学部長をはじめとする教員が主催する「社会デザイン論入門」の授業におけるレポートコンテストで、Web3と従来のコワーキングスペースを掛け合わせた新時代のコワーキングスペースを提唱し、優秀賞を受賞しました。
+                    </p>
+                </div>
+                
+                <!-- Card 6 (NEW) -->
+                <div class="scroll-animate card-hover bg-black text-white border-4 border-black rounded-xl p-8 hard-shadow transform transition-all duration-200 md:mt-12 lg:mt-4">
+                    <h3 class="text-2xl font-black mb-3 lang-fade" data-key="work6Title">第6回 創造力、無限大∞ 高校生ビジネスプラン・グランプリ2018</h3>
+                    <p class="text-lg font-bold mb-4 text-gray-300 lang-fade" data-key="work6Subtitle">東京都産業労働局長賞受賞</p>
+                    <p class="text-base text-gray-300 lang-fade" data-key="work6Body">
+                       2018年、日本政策金融公庫主催の第6回 創造力、無限大∞ 高校生ビジネスプラン・グランプリ2018にて、私の考えたビジネスプランが総応募数4359件のうち TOP100件に選出。同グランプリ都大会に出場し、東京都産業労働局長賞（都知事賞に次ぐ2位）を受賞しました。
+                    </p>
+                </div>
+
+                <!-- Card 7 (NEW) -->
+                <div class="scroll-animate card-hover bg-white border-4 border-black rounded-xl p-8 hard-shadow transform transition-all duration-200 lg:mt-12">
+                    <h3 class="text-2xl font-black mb-3 lang-fade" data-key="work7Title">広尾学園中学校学年プレゼンテーション大会</h3>
+                    <p class="text-lg font-bold mb-4 text-black lang-fade" data-key="work7Subtitle">最優秀賞受賞</p>
+                    <p class="text-base text-gray-900 lang-fade" data-key="work7Body">
+                        2017年、1ヶ月の猛練習の末、広尾学園中学の全学年プレゼン大会に出場し、1学年302名の中から、最高位「プレゼン大賞」を受賞しました。
+                    </p>
+                </div>
+
+                <!-- Card 8 (NEW) -->
+                <div class="scroll-animate card-hover bg-white border-4 border-black rounded-xl p-8 hard-shadow transform transition-all duration-200 lg:mt-12">
+                    <h3 class="text-2xl font-black mb-3 lang-fade" data-key="work8Title">JAPAN OPEN POKER TOUR 2024 Tokyo #32 PPC</h3>
+                    <p class="text-lg font-bold mb-4 text-black lang-fade" data-key="work8Subtitle">107位入賞</p>
+                    <p class="text-base text-gray-900 lang-fade" data-key="work8Body">
+                        日本最大のポーカー大会JAPAN OPEN POKER TOUR 2024 Tokyo #32 Poker Players Championshipにて2511人中107位に入賞し、約11万円の賞金を獲得しました。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 
+          SKILLS SECTION
+          - Tag-like display
+        -->
+        <section id="skills" class="py-24">
+            <h2 class="text-4xl md:text-6xl font-black text-center mb-16 scroll-animate lang-fade" data-key="skillsTitle">
+                保有資格
+            </h2>
+          <div class="max-w-5xl mx-auto flex flex-wrap justify-center gap-4 scroll-animate">
+                <span class="skill-tag bg-[#FED766] lang-fade" data-key="skill1">実用英語技能検定準1級</span>
+                <span class="skill-tag bg-white lang-fade" data-key="skill2">珠算検定1級</span>
+                <span class="skill-tag bg-[#45B7D1] text-white lang-fade" data-key="skill3">暗算検定1級</span>
+                <span class="skill-tag bg-white lang-fade" data-key="skill4">生成AIパスポート</span>
+                <span class="skill-tag bg-black text-white lang-fade" data-key="skill5">ITパスポート</span>
+            </div>
+            <style>
+                .skill-tag {
+                    @apply text-lg font-bold px-5 py-3 border-2 border-black rounded-lg hard-shadow;
+                }
+            </style>
+        </section>
+
+        <!-- 
+          CONTACT SECTION
+          - Big, bold call to action
+        -->
+        <section id="contact" class="py-24 bg-black text-white -mx-6 px-6 md:-mx-12 md:px-12">
+            <div class="max-w-4xl mx-auto text-center scroll-animate">
+                <h2 class="text-4xl md:text-6xl font-black mb-8 lang-fade" data-key="contactTitle">
+                    まだ見ぬ何かを、<br class="sm:hidden">一緒に創りませんか？
+                </h2>
+                <p class="text-xl md:text-2xl text-gray-300 mb-12 lang-fade" data-key="contactBody">
+                    お気軽にご連絡ください。
+                </p>
+                <a href="mailto:beyondtheken.jp@gmail.com"
+                   class="btn-press hard-shadow inline-block text-2xl md:text-3xl font-black text-black bg-[#FED766] border-2 border-black px-12 py-5 rounded-lg hover:bg-[#FFD147] active:bg-[#FDBF1E] lang-fade"
+                   data-key="contactButton">
+                   今すぐコンタクトを取る
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-8 border-t-4 border-black">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-base font-bold text-gray-700 lang-fade" data-key="footerCopy">
+                &copy; 2025 Ken HARIMA. All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Mobile Menu Toggle ---
+        const menuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        menuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when a link is clicked
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // --- Intersection Observer for Scroll Animations ---
+        const animatedElements = document.querySelectorAll('.scroll-animate');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // Optional: Stop observing after animation
+                    // observer.unobserve(entry.target); 
+                }
+                // Optional: Re-hide when scrolling up
+                // else {
+                //     entry.target.classList.remove('is-visible');
+                // }
+            });
+        }, {
+            threshold: 0.1 // Trigger when 10% of the element is visible
+        });
+
+        // Observe each element
+        animatedElements.forEach(el => {
+            observer.observe(el);
+        });
+
+        // --- Language Toggle Logic ---
+
+        // 1. Translation Data
+        const translations = {
+          ja: {
+            // Header
+            navLogo: "播磨 賢",
+            navAbout: "私について",
+            navWorks: "活動・受賞歴",
+            navSkills: "保有資格",
+            navContact: "連絡先",
+            navButton: "コンタクトを取る",
+            // Hero
+            heroTitle1: "播磨 賢",
+            heroTitle2: "Ken HARIMA",
+            heroSubtitle: "ダイキン工業株式会社 | 早稲田大学社会科学部",
+            marquee1: "実存的に飛び込む",
+            marquee2: "ESSAY & NARRATIVE",
+            marquee3: "常識を破壊する",
+            marquee4: "EXISTENTIALISM",
+            marquee1_2: "実存的に飛び込む",
+            marquee2_2: "ESSAY & NARRATIVE",
+            marquee3_2: "常識を破壊する",
+            marquee4_2: "EXISTENTIALISM",
+            marquee1_3: "実存的に飛び込む",
+            marquee2_3: "ESSAY & NARRATIVE",
+            marquee3_3: "常識を破壊する",
+            marquee4_3: "EXISTENTIALISM",
+            // About
+            aboutTitle: "私について",
+            aboutBody1: "こんにちは、播磨 賢です。AGI・ASI時代における実存の可能性を本質的に探究します。ドイツ・マンハイム大学で社会学と西洋哲学を専門的に学びました。ポーカープレイヤー、エッセイスト。主な趣味はポーカー、アニメ漫画鑑賞、読書、執筆活動。ゾーンに入ることが得意で、周りの騒音はシャットアウトされ、よく時間も忘れて気づけば太陽が沈んでいることがしばしば。",
+            aboutBody2: "学歴：早稲田大学社会科学部社会科学科卒業、独・マンハイム大学社会科学科社会学科（１年間交換留学）、広尾学園中学・高等学校卒業",
+            // Works
+            worksTitle: "活動・受賞歴",
+            work1Title: "社会科学部野口ゼミ×(株)理想科学工業マーケティング戦略コンペ",
+            work1Subtitle: "最優秀賞受賞",
+            work1Body: "１年間にかけて行われた早稲田大学社会科学部野口ゼミと㍿理想科学工業のコラボレーションによる当該企業が手がけるプリンター「MiScreen A4」をプロモーション戦略の立案コンペで、SNSでの広報におけるPV数や動画の構成要素を因子分解して数量化１類と呼ばれる専門的な統計学的プロセスを経て抽出されたプロモーション戦略を提案しました。",
+            work2Title: "第36回「働くってなんだろう」エッセイコンテスト",
+            work2Subtitle: "勤労青少年躍進会理事長賞受賞",
+            work2Body: "ペンネーム「風織ケン」の名で執筆した実存的な働き方に光を当てたエッセイ『愛を込めて、清掃員の世界を歩む』が、総応募作品数1,112編の中から、勤労青少年躍進会理事長賞を受賞しました。",
+            work3Title: "第10回あなたが考えるブランドラベルコンテスト",
+            work3Subtitle: "TOP40 東京ビックサイトで作品展示",
+            work3Body: "2023年、東京吉岡株式会社主催の「あなたのアイデアブランドラベルコンテスト」に参加しました。架空のアパレルブランド\"ONESAGE\"のコンセプトとデザインを構築。環境に優しい生分解性プラスチック100%使用した作品を完成させました。作品は、延べ520点の応募の中からTOP40に選出され、東京ビックサイトで3日間にわたって展示されました。",
+            work4Title: "海外ポーカー実践",
+            work4Subtitle: "投資利益率532%",
+            work4Body: "趣味の1つであるポーカー（ノーリミットテキサスホールデム）では、ゲーム理論研究や数十万ハンドの経験知と勘に裏打ちされた実力で、最終的に留学中に世界10都市で26セッションを行い、5,056ユーロ（約90万8千円）の利益を計上しました。最高のROIは一時927.125%を記録しました。実践は大学の授業に支障をきたさないように配慮しながら行いました。（総プレイ時間：175時間52分、時給：約5200円（€28.75））",
+            work5Title: "「社会デザイン論入門」レポートコンテスト",
+            work5Subtitle: "優秀賞受賞",
+            work5Body: "2022年、早稲田大学社会科学部の学部長をはじめとする教員が主催する「社会デザイン論入門」の授業におけるレポートコンテストで、Web3と従来のコワーキングスペースを掛け合わせた新時代のコワーキングスペースを提唱し、優秀賞を受賞しました。",
+            work6Title: "第6回 創造力、無限大∞ 高校生ビジネスプラン・グランプリ2018",
+            work6Subtitle: "東京都産業労働局長賞受賞",
+            work6Body: "2018年、日本政策金融公庫主催の第6回 創造力、無限大∞ 高校生ビジネスプラン・グランプリ2018にて、私の考えたビジネスプランが総応募数4359件のうち TOP100件に選出。同グランプリ都大会に出場し、東京都産業労働局長賞（都知事賞に次ぐ2位）を受賞しました。",
+            work7Title: "広尾学園中学校学年プレゼンテーション大会",
+            work7Subtitle: "最優秀賞受賞",
+            work7Body: "2017年、1ヶ月の猛練習の末、広尾学園中学の全学年プレゼン大会に出場し、1学年302名の中から、最高位「プレゼン大賞」を受賞しました。",
+            work8Title: "JAPAN OPEN POKER TOUR 2024 Tokyo #32 PPC",
+            work8Subtitle: "107位入賞",
+            work8Body: "日本最大のポーカー大会JAPAN OPEN POKER TOUR 2024 Tokyo #32 Poker Players Championshipにて2511人中107位に入賞し、約11万円の賞金を獲得しました。",
+            // Skills
+            skillsTitle: "保有資格",
+            skill1: "実用英語技能検定準1級",
+            skill2: "珠算検定1級",
+            skill3: "暗算検定1級",
+            skill4: "生成AIパスポート",
+            skill5: "ITパスポート",
+            // Contact
+            contactTitle: "まだ見ぬ何かを、<br class=\"sm:hidden\">一緒に創りませんか？",
+            contactBody: "お気軽にご連絡ください。",
+            contactButton: "今すぐコンタクトを取る",
+            // Footer
+            footerCopy: "&copy; 2025 Ken HARIMA. All Rights Reserved."
+          },
+          en: {
+            // Header
+            navLogo: "Ken HARIMA",
+            navAbout: "About Me",
+            navWorks: "Works & Awards",
+            navSkills: "Certifications",
+            navContact: "Contact",
+            navButton: "Get in Touch",
+            // Hero
+            heroTitle1: "Ken",
+            heroTitle2: "HARIMA",
+            heroSubtitle: "Daikin Industries, Ltd. | WASEDA University School of Social Sciences",
+            marquee1: "Diving in existentially",
+            marquee2: "ESSAY & NARRATIVE",
+            marquee3: "Shattering conventions",
+            marquee4: "EXISTENTIALISM",
+            marquee1_2: "Diving in existentially",
+            marquee2_2: "ESSAY & NARRATIVE",
+            marquee3_2: "Shattering conventions",
+            marquee4_2: "EXISTENTIALISM",
+            marquee1_3: "Diving in existentially",
+            marquee2_3: "ESSAY & NARRATIVE",
+            marquee3_3: "Shattering conventions",
+            marquee4_3: "EXISTENTIALISM",
+            // About
+            aboutTitle: "About Me",
+            aboutBody1: "Hello, I’m Ken Harima. I explore the possibilities of existence at a fundamental level in the age of AGI and ASI. I studied sociology and Western philosophy at the University of Mannheim in Germany. I am a poker player and essayist. My main hobbies are playing poker, watching anime and reading manga, reading books, and writing. I am good at entering a flow state: I shut out the surrounding noise, often lose track of time, and frequently realize only later that the sun has already set.",
+            aboutBody2: "Education: B.A. in Social Sciences, School of Social Sciences, Waseda University Department of Sociology, School of Social Sciences, University of Mannheim, Germany (one-year exchange) Hiroo Gakuen Junior and Senior High School",
+            // Works
+            worksTitle: "Works & Awards",
+            work1Title: "Faculty of Social Sciences Noguchi Seminar × Riso Kagaku Corporation Marketing Strategy Competition",
+            work1Subtitle: "Grand Prize",
+            work1Body: "Over the course of a year, I took part in a joint project between the Noguchi Seminar at Waseda University’s School of Social Sciences and Riso Kagaku Corporation, competing to design a promotion strategy for the company’s printer “MiScreen A4.” I proposed a promotion strategy derived through a specialized statistical process (Quantification Theory Type I), in which I factor-analyzed elements such as page views and video composition in SNS-based promotion.",
+            work2Title: "The 36th “What Does It Mean to Work?” Essay Contest",
+            work2Subtitle: "Chairperson’s Award, Association for the Advancement of Working Youth",
+            work2Body: "Under the pen name Kazeori Ken, my essay “Lovingly Walking Through the World of a Janitor,” which sheds light on an existential approach to work, was selected for the Chairperson’s Award from among 1,112 submissions.",
+            work3Title: "The 10th “Design Your Own Brand Label” Contest",
+            work3Subtitle: "Top 40 / Exhibition at Tokyo Big Sight",
+            work3Body: "In 2023, I participated in the “Design Your Own Brand Label Contest” organized by Tokyo Yoshioka Co., Ltd. I developed the concept and design for a fictional apparel brand, ONESAGE, and created a piece made from 100% environmentally friendly biodegradable plastic. From a total of 520 entries, the work was selected among the Top 40 and exhibited for three days at Tokyo Big Sight.",
+            work4Title: "Overseas Poker Experience",
+            work4Subtitle: "Return on Investment: 532%",
+            work4Body: "One of my hobbies is poker (No-Limit Texas Hold’em). Drawing on game theory research, hundreds of thousands of hands of experience, and cultivated intuition, I played a total of 26 sessions in 10 cities worldwide during my study abroad. I recorded total profits of €5,056 (approx. ¥908,000), achieving a maximum ROI of 927.125% at one point and an overall ROI of 532%. I made sure that my playing schedule did not interfere with my university classes. (Total playing time: 175 hours 52 minutes; hourly earnings: approx. ¥5,200 (€28.75))",
+            work5Title: "Introduction to Social Design” Report Contest",
+            work5Subtitle: "Excellence Award",
+            work5Body: "In 2022, in the report contest for the “Introduction to Social Design” course hosted by faculty members including the Dean of the School of Social Sciences at Waseda University, I proposed a new type of coworking space that combines Web3 with conventional coworking spaces and received the Excellence Award.",
+            work6Title: "The 6th “Creativity, Infinity ∞” High School Business Plan Grand Prix 2018",
+            work6Subtitle: "Director General’s Award, Tokyo Metropolitan Bureau of Industrial and Labor Affairs",
+            work6Body: "In 2018, in the National High School Business Plan Grand Prix hosted by the Japan Finance Corporation, my business plan was selected among the Top 100 out of 4,359 submissions. I advanced to the Tokyo metropolitan finals and received the Director General’s Award from the Tokyo Metropolitan Bureau of Industrial and Labor Affairs (second place, next to the Governor’s Award).",
+           work7Title: "Hiroo Gakuen Junior High School Grade Presentation Contest",
+            work7Subtitle: "Grand Prize",
+            work7Body: "In 2017, after a month of intensive practice, I competed in the school-wide presentation contest at Hiroo Gakuen Junior High School. Out of 302 students in my grade, I received the highest honor, the “Presentation Grand Prize.\"",
+            work8Title: "JAPAN OPEN POKER TOUR 2024 Tokyo #32 PPC",
+            work8Subtitle: "107th Place (In the Money)",
+            work8Body: "In Japan’s largest poker tournament series, JAPAN OPEN POKER TOUR 2024 Tokyo #32 Poker Players Championship, I finished 107th out of 2,511 entrants and earned prize money of approximately ¥110,000.",
+            // Skills
+            skillsTitle: "Certifications",
+            skill1: "EIKEN Test, Pre-1st Grade",
+            skill2: "Abacus Proficiency Test, Level 1",
+            skill3: "Mental Arithmetic Proficiency Test, Level 1",
+            skill4: "Generative AI Passport",
+            skill5: "IT Passport (National Certification, Japan)",
+            // Contact
+            contactTitle: "Let's build something<br class=\"sm:hidden\"> unforgettable.",
+            contactBody: "Please feel free to contact me.",
+            contactButton: "Get in Touch Now",
+            // Footer
+            footerCopy: "&copy; 2025 Ken HARIMA. All Rights Reserved."
+          }
+        };
+
+        // 2. State
+        let currentLang = 'ja';
+        const langToggles = [
+            document.getElementById('lang-toggle-desktop'),
+            document.getElementById('lang-toggle-mobile')
+        ];
+        const langHandles = [
+            document.getElementById('lang-handle-desktop'),
+            document.getElementById('lang-handle-mobile')
+        ];
+        
+        // ** FIX: We must query for data-key elements AFTER the DOM is loaded
+        //    or query them here and also update the ones you removed.
+        //    Let's stick to the original logic, but we must ensure all
+        //    elements with [data-key] are still in the HTML.
+        
+        // ** YOUR HTML ANALYSIS: **
+        // You removed [data-key] from:
+        // - Marquee spans (marquee1, marquee2, etc.)
+        // - About me text (aboutBody1, aboutBody2)
+        // - All of the "Works" cards (work1Title, work1Body, etc.)
+        // - All of the "Skills" tags (skill1, skill2, etc.)
+        // - Contact body (contactBody)
+        
+        // Because these [data-key] attributes are missing, the querySelectorAll
+        // below won't find them, and the toggle won't work for them.
+        
+        // ** The SCRIPT ITSELF IS MOSTLY FINE, but the HTML is missing the data-keys
+        //    that the script relies on.
+        
+        // Let's re-query the elements *that actually exist* in your file.
+        const translatableElements = document.querySelectorAll('[data-key]');
+
+
+        // 3. Toggle Function
+        function toggleLanguage() {
+            // Switch language
+            currentLang = (currentLang === 'ja') ? 'en' : 'ja';
+
+            // Update HTML lang attribute
+            document.documentElement.lang = currentLang;
+
+            // Update toggle UI
+            const newHandleText = (currentLang === 'ja') ? 'JP' : 'EN';
+            langToggles.forEach(toggle => {
+                if (currentLang === 'en') {
+                    toggle.classList.add('en');
+                } else {
+                    toggle.classList.remove('en');
+                }
+            });
+            langHandles.forEach(handle => {
+                handle.textContent = newHandleText;
+            });
+
+            // Update all text content with fade effect
+            translatableElements.forEach(el => {
+                const key = el.dataset.key;
+                const newText = translations[currentLang][key];
+
+                if (newText !== undefined) {
+                    // Start fade out
+                    el.style.opacity = '0';
+                    
+                    // After a short delay, change text and fade in
+                    setTimeout(() => {
+                        el.innerHTML = newText; // Use innerHTML to allow <br> and <span> tags
+                        el.style.opacity = '1';
+                    }, 150); // 150ms delay, matches the transition
+                }
+            });
+        }
+
+        // 4. Add Event Listeners
+        langToggles.forEach(toggle => {
+            if(toggle) {
+                toggle.addEventListener('click', toggleLanguage);
+            }
+        });
+
+        // 5. Apply 'lang-fade' class to all translatable elements on load
+        translatableElements.forEach(el => {
+            el.classList.add('lang-fade');
+        });
+
+    </script>
+
+</body>
+</html>
